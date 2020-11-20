@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 
 export type ProfilePictureProps = {
     image?: string,
@@ -9,7 +9,7 @@ export type ProfilePictureProps = {
 const ProfilePicture = ({ image, size = 50 }: ProfilePictureProps) => {
     return (
         <Image
-            source={{ uri: image }}
+            source={{ uri: image || '' }}
             style={{ width: size, height: size, borderRadius: size }}
         />
     );

@@ -1,24 +1,43 @@
 import { AntDesign } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { API, Auth, graphqlOperation } from 'aws-amplify';
 import * as React from 'react';
 import { useState } from 'react';
 import { SafeAreaView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import ProfilePicture from '../components/ProfilePicture';
 import { Text, View } from '../components/Themed';
 import Colors from '../constants/Colors';
+import { createTweet } from '../graphql/mutations';
 
 export default function NewTweetScreen() {
   const [tweet, setTweet] = useState('')
   const [imageUrl, setImageUrl] = useState('')
 
-  const onPostTweet = () => {
-    console.log(tweet)
-    console.log(imageUrl)
+  const navigation = useNavigation()
+
+  const onPostTweet = async () => {
+    const currentUser = await Auth.currentAuthenticatedUser({ bypassCache: true })
+
+    try {
+      const newTweet = {
+        content: tweet,
+        image: imageUrl,
+        userID: currentUser.attributes.sub,
+      }
+      await API.graphql(graphqlOperation(createTweet, { input: newTweet }))
+    } catch (e) {
+      console.log(e)
+    }
+
+    navigation.goBack()
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
-        <AntDesign name='close' size={30} color={Colors.light.tint} />
+        <TouchableOpacity onPress={() => { navigation.goBack() }}>
+          <AntDesign name='close' size={30} color={Colors.light.tint} />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={onPostTweet}>
           <Text style={styles.buttonText}>Tweet</Text>
         </TouchableOpacity>
